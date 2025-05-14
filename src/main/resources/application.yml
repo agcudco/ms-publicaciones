@@ -15,3 +15,10 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 server:
   port: 8080
+
+springdoc:
+  swagger-ui:
+    url: /v3/api-docs/swagger-config
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
