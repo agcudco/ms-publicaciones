@@ -19,7 +19,8 @@ RUN ./mvnw dependency:go-offline
 COPY src ./src
 
 # Compila el proyecto sin correr los tests
-RUN ./mvnw clean install -DskipTests -B -e
+RUN ./mvnw clean install -DskipTests -X -e
+
 
 # Etapa 2: Imagen final con solo el artefacto
 FROM eclipse-temurin:17-jre
