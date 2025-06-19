@@ -1,10 +1,10 @@
-# Etapa 1: Construcción del proyecto
+# Etapa 1: Compilación del proyecto
 FROM eclipse-temurin:17-jdk AS builder
 
-# Establece el directorio de trabajo
+# Establece el directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# Copia los archivos necesarios del wrapper y el pom
+# Copia el wrapper de Maven y configuración
 COPY mvnw .
 COPY .mvn .mvn
 COPY pom.xml .
@@ -12,26 +12,26 @@ COPY pom.xml .
 # Da permisos de ejecución al wrapper
 RUN chmod +x mvnw
 
-# Descarga las dependencias (sin compilar aún)
-RUN ./mvnw dependency:go-offline
+# Descarga las dependencias sin compilar el código aún
+RUN ./mvnw dependency:go-offline -B
 
-# Copia el código fuente (después del pom.xml para usar cache)
+# Copia el código fuente después del pom.xml para mantener caché eficiente
 COPY src ./src
 
 # Compila el proyecto sin correr los tests
-RUN ./mvnw clean install -DskipTests -X -e
+RUN ./mvnw clean install -DskipTests -B
 
-
-# Etapa 2: Imagen final con solo el artefacto
+# Etapa 2: Imagen final más liviana, solo con el JAR
 FROM eclipse-temurin:17-jre
 
+# Establece el directorio de trabajo en la imagen final
 WORKDIR /app
 
-# Copiamos el JAR desde la etapa anterior
+# Copia el artefacto JAR desde la etapa anterior
 COPY --from=builder /app/target/*.jar app.jar
 
-# Puerto de escucha (opcional, depende de tu app)
+# Expone el puerto (ajuste según su app, por defecto 8080)
 EXPOSE 8080
 
-# Comando para ejecutar la aplicación
+# Comando de arranque del contenedor
 ENTRYPOINT ["java", "-jar", "app.jar"]
