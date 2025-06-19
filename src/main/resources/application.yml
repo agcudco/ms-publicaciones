@@ -1,12 +1,13 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/bd-biblioteca
-    username: postgres
-    password: qwerty123
+    url: ${DATABASE_URL}
+    username: ${DATABASE_URL}
+    password: ${DATABASE_USERNAME}
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      #ddl-auto: update
-      ddl-auto: create-drop
+      ddl-auto: update
+      #ddl-auto: create-drop
     properties:
       hibernate:
         show_sql: true
