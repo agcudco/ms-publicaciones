@@ -1,17 +1,11 @@
-# Use the official Maven image
-FROM maven:3.8.1-jdk-11-slim
-
-# Create and change to the app directory.
+# Asegúrate de estar en el directorio correcto (donde está mvnw)
 WORKDIR /app
 
-# Copy local code to the container image.
-COPY . ./
-
-# Ensure mvnw has execute permissions
+# Da permisos al wrapper
 RUN chmod +x ./mvnw
 
-# Build the app.
-RUN ./mvnw -DoutputFile=target/mvn-dependency-list.log -B -DskipTests clean dependency:list install
+# Crea la carpeta target por si no existe
+RUN mkdir -p target
 
-# Run the app by dynamically finding the JAR file in the target directory
-CMD ["sh", "-c", "java -jar target/*.jar"]
+# Ejecuta el build
+RUN ./mvnw -DoutputFile=target/mvn-dependency-list.log -B -DskipTests clean dependency:list install
