@@ -1,15 +1,13 @@
-# Stage 1: compilación con Maven + JDK 21
-FROM maven:3.9.4-jdk-21-slim AS build
+# Etapa de compilación con Maven y JDK 21
+FROM maven:3.9.6-eclipse-temurin-21 AS build
 
 WORKDIR /app
 COPY . .
 
-# Si usa mvnw, asegúrese de que sea compatible con JDK 21
-RUN chmod +x mvnw \
- && ./mvnw clean install -DskipTests -B
+RUN chmod +x mvnw && ./mvnw clean install -DskipTests -B
 
-# Stage 2: runtime con JRE 21
-FROM eclipse-temurin:21-jre-focal
+# Etapa de runtime con JRE 21
+FROM eclipse-temurin:21-jre
 
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
