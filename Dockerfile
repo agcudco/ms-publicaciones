@@ -1,37 +1,26 @@
-# Etapa 1: Compilación del proyecto
-FROM eclipse-temurin:17-jdk AS builder
+# Use the official Maven image with Java 11
+FROM maven:3.8.1-jdk-11-slim
 
-# Establece el directorio de trabajo dentro del contenedor
+# Create and change to the app directory.
 WORKDIR /app
 
-# Copia el wrapper de Maven y configuración
-COPY mvnw .
-COPY .mvn .mvn
-COPY pom.xml .
+# Copy local code to the container image.
+COPY . ./
 
-# Da permisos de ejecución al wrapper
-RUN chmod +x mvnw
+# Ensure mvnw has execute permissions
+RUN chmod +x ./mvnw
 
-# Descarga las dependencias sin compilar el código aún
-RUN ./mvnw dependency:go-offline -B
-
-# Copia el código fuente después del pom.xml para mantener caché eficiente
-COPY src ./src
-
-# Compila el proyecto sin correr los tests
+# Build the app without running tests
 RUN ./mvnw clean install -DskipTests -B
 
-# Etapa 2: Imagen final más liviana, solo con el JAR
-FROM eclipse-temurin:17-jre
+# Stage 2: Create a lightweight runtime image
+FROM openjdk:11-jre-slim
 
-# Establece el directorio de trabajo en la imagen final
+# Create and change to the app directory.
 WORKDIR /app
 
-# Copia el artefacto JAR desde la etapa anterior
-COPY --from=builder /app/target/*.jar app.jar
+# Copy the built JAR file from the previous stage
+COPY --from=0 /app/target/*.jar app.jar
 
-# Expone el puerto (ajuste según su app, por defecto 8080)
-EXPOSE 8080
-
-# Comando de arranque del contenedor
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Run the app
+CMD ["java", "-jar", "app.jar"]
